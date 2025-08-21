@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>صيدلية الرازي — توصيل وصفتي</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="icon" href="razi-logo.png">
+<style>html,body{height:100%;background:#f8fafc}</style>
+</head>
+
+<body class="text-slate-900">
+<audio id="ding" src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABYAAAAAAABkAAAA"></audio>
+<header class="p-4 flex items-center gap-3 border-b bg-white">
+  <img src="razi-logo.png" alt="شعار الرازي" class="h-12">
+  <div class="leading-tight">
+    <h1 class="text-xl font-bold">صيدلية الرازي — توصيل وصفتي</h1>
+    <p class="text-xs text-slate-500">التوصيل <b>10 ريال</b> داخل النطاق</p>
+  </div>
+</header>
+
+<main class="mx-auto max-w-3xl p-4">
+  <div class="mt-4 rounded-2xl border bg-white p-4 flex items-center justify-between">
+    <div>
+      <div class="text-sm text-slate-600">رسوم التوصيل</div>
+      <div class="text-2xl font-black">10 ريال</div>
+    </div>
+    <div class="text-sm text-slate-600">
+      الرجاء إدخال <b>رقم الهوية</b> و<b>رقم الوصفة</b> مع العنوان/الموقع.
+    </div>
+  </div>
+
+  <!-- Netlify Forms -->
+  <form name="orders" method="POST" data-netlify="true" netlify-honeypot="bot-field" action="thanks.html" class="mt-6 space-y-4 bg-white border rounded-2xl p-4" id="orderForm">
+    <input type="hidden" name="form-name" value="orders">
+    <p class="hidden">
+      <label>لا تعبئ هذا الحقل: <input name="bot-field"></label>
+    </p>
+
+    <div class="grid md:grid-cols-2 gap-4">
+      <div>
+        <label class="text-sm font-medium">الاسم الثلاثي</label>
+        <input name="full_name" class="mt-1 w-full rounded-xl border px-3 py-2 text-sm" placeholder="مثال: محمد أحمد الرازي" required>
+      </div>
+      <div>
+        <label class="text-sm font-medium">رقم الجوال</label>
+        <input name="phone" class="mt-1 w-full rounded-xl border px-3 py-2 text-sm" placeholder="مثال: 05XXXXXXXX" required>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-4">
+      <div>
+        <label class="text-sm font-medium">رقم الهوية</label>
+        <input name="national_id" class="mt-1 w-full rounded-xl border px-3 py-2 text-sm" placeholder="10 أرقام" required>
+      </div>
+      <div>
+        <label class="text-sm font-medium">رقم الوصفة</label>
+        <input name="rx_number" class="mt-1 w-full rounded-xl border px-3 py-2 text-sm" placeholder="كما يظهر في وصفتي" required>
+      </div>
+    </div>
+
+    <div>
+      <label class="text-sm font-medium">العنوان الوطني / رابط الموقع</label>
+      <input name="address" class="mt-1 w-full rounded-xl border px-3 py-2 text-sm" placeholder="مثال: رابط خرائط قوقل أو العنوان الوطني بالتفصيل" required>
+    </div>
+
+    <div class="flex items-center gap-3 pt-2">
+      <button type="submit" class="rounded-2xl bg-slate-900 text-white px-4 py-2 text-sm font-semibold">إرسال الطلب</button>
+      <span class="text-xs text-slate-500">*سيتم حفظ الطلب في Netlify Forms.</span>
+    </div>
+  </form>
+</main>
+
+<script>
+  // تشغيل صوت عند الإرسال (قبل الانتقال لصفحة الشكر)
+  document.getElementById('orderForm').addEventListener('submit', function() {
+    var a = document.getElementById('ding');
+    try { a.currentTime = 0; a.play(); } catch(e) {}
+  });
+</script>
+</body></html>
