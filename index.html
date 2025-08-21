@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>صيدلية الرازي — توصيل وصفتي</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="icon" href="razi-logo.png">
+<style>html,body{height:100%;background:#f8fafc}</style>
+</head>
+
+<body class="text-slate-900">
+<header class="p-4 flex items-center gap-3 border-b bg-white">
+  <img src="razi-logo.png" alt="شعار الرازي" class="h-12">
+  <div class="leading-tight">
+    <h1 class="text-xl font-bold">صيدلية الرازي — توصيل وصفتي</h1>
+    <p class="text-xs text-slate-500">التوصيل <b>10 ريال</b> داخل النطاق</p>
+  </div>
+</header>
+
+<main class="mx-auto max-w-3xl p-4">
+  <div class="mt-4 rounded-2xl border bg-white p-4 flex items-center justify-between">
+    <div>
+      <div class="text-sm text-slate-600">رسوم التوصيل</div>
+      <div class="text-2xl font-black">10 ريال</div>
+    </div>
+    <div class="text-sm text-slate-600">
+      الرجاء إدخال <b>رقم الهوية</b> و<b>رقم الوصفة</b> مع العنوان/الموقع.
+    </div>
+  </div>
+
+  <div class="mt-6 space-y-4" id="formRoot">
+    <div class="grid md:grid-cols-2 gap-4">
+      <div>
+        <label class="text-sm font-medium">الاسم الثلاثي</label>
+        <input id="full_name" class="mt-1 w-full rounded-xl border px-3 py-2 text-sm" placeholder="مثال: محمد أحمد الرازي" required>
+      </div>
+      <div>
+        <label class="text-sm font-medium">رقم الجوال</label>
+        <input id="phone" class="mt-1 w-full rounded-xl border px-3 py-2 text-sm" placeholder="مثال: 05XXXXXXXX" required>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-4">
+      <div>
+        <label class="text-sm font-medium">رقم الهوية</label>
+        <input id="national_id" class="mt-1 w-full rounded-xl border px-3 py-2 text-sm" placeholder="10 أرقام" required>
+      </div>
+      <div>
+        <label class="text-sm font-medium">رقم الوصفة</label>
+        <input id="rx_number" class="mt-1 w-full rounded-xl border px-3 py-2 text-sm" placeholder="كما يظهر في وصفتي" required>
+      </div>
+    </div>
+
+    <div>
+      <label class="text-sm font-medium">العنوان الوطني / رابط الموقع</label>
+      <input id="address" class="mt-1 w-full rounded-xl border px-3 py-2 text-sm" placeholder="مثال: رابط خرائط قوقل أو العنوان الوطني بالتفصيل" required>
+    </div>
+
+    <div class="flex items-center gap-3 pt-2">
+      <button id="submitBtn" class="rounded-2xl bg-slate-900 text-white px-4 py-2 text-sm font-semibold">إرسال الطلب</button>
+      <span id="msg" class="text-sm"></span>
+    </div>
+    <div class="text-xs text-slate-500">تحتاج الداشبورد؟ افتح <a class="underline" href="dashboard.html">dashboard.html</a></div>
+  </div>
+</main>
+
+<script>
+const key = 'razi_orders';
+const bc = ('BroadcastChannel' in window) ? new BroadcastChannel('razi_orders') : null;
+function saveOrder(o){ const list = JSON.parse(localStorage.getItem(key)||'[]'); list.unshift(o); localStorage.setItem(key, JSON.stringify(list)); }
+function required(v){ return v && v.trim().length>0; }
+
+document.getElementById('submitBtn').addEventListener('click', () => {
+  const full_name = document.getElementById('full_name').value;
+  const phone = document.getElementById('phone').value;
+  const national_id = document.getElementById('national_id').value;
+  const rx_number = document.getElementById('rx_number').value;
+  const address = document.getElementById('address').value;
+  const msg = document.getElementById('msg');
+
+  if (![full_name,phone,national_id,rx_number,address].every(required)){
+    msg.textContent = 'الرجاء تعبئة جميع الحقول المطلوبة';
+    msg.className='text-sm text-red-600';
+    return;
+  }
+
+  const order = {
+    id: crypto.randomUUID(),
+    created_at: new Date().toISOString(),
+    full_name, phone, national_id, rx_number, address
+  };
+  saveOrder(order);
+  try { bc && bc.postMessage({type:'NEW_ORDER', order}); } catch(e){}
+  msg.textContent = 'تم إرسال الطلب بنجاح. سنعاود الاتصال بكم قريبًا.';
+  msg.className='text-sm text-green-700';
+  document.getElementById('full_name').value='';
+  document.getElementById('phone').value='';
+  document.getElementById('national_id').value='';
+  document.getElementById('rx_number').value='';
+  document.getElementById('address').value='';
+});
+</script>
+</body></html>
