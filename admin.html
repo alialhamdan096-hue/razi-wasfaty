@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>لوحة الإدارة — وصفتي (Netlify Forms)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>html,body{height:100%;background:#fff;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}</style>
+</head>
+<body class="text-slate-900">
+<audio id="ding" src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABYAAAAAAABkAAAA"></audio>
+<header class="p-4 border-b bg-white flex items-center justify-between">
+  <div class="flex items-center gap-3">
+    <div class="h-10 w-10 rounded-full bg-slate-900"></div>
+    <div>
+      <div class="text-lg font-bold">لوحة الإدارة — الطلبات</div>
+      <div class="text-xs text-slate-500">يتم الجلب من Netlify Function كل 10 ثوانٍ</div>
+    </div>
+  </div>
+  <div class="flex items-center gap-2">
+    <button id="refreshBtn" class="rounded-2xl bg-slate-900 text-white px-3 py-2 text-sm">تحديث الآن</button>
+    <div class="text-sm">إجمالي: <b id="total">0</b></div>
+  </div>
+</header>
+
+<main class="max-w-6xl mx-auto p-4">
+  <div class="overflow-auto rounded-2xl border">
+    <table class="min-w-full text-sm">
+      <thead class="bg-slate-100">
+        <tr>
+          <th class="p-2 text-right">التاريخ</th>
+          <th class="p-2 text-right">الاسم</th>
+          <th class="p-2 text-right">الجوال</th>
+          <th class="p-2 text-right">رقم الهوية</th>
+          <th class="p-2 text-right">رقم الوصفة</th>
+          <th class="p-2 text-right">العنوان</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+</main>
+
+<script>
+const API = '/.netlify/functions/list-submissions';
+const tbody = document.getElementById('tbody');
+const totalEl = document.getElementById('total');
+const ding = document.getElementById('ding');
+let lastIds = new Set();
+
+async function load() {
+  try {
+    const res = await fetch(API);
+    const data = await res.json();
+    tbody.innerHTML = '';
+    data.forEach(row => {
+      const tr = document.createElement('tr');
+      tr.className = 'odd:bg-white even:bg-slate-50';
+      tr.innerHTML = `<td class="p-2">${new Date(row.created_at).toLocaleString()}</td>
+        <td class="p-2">${row.data.full_name||''}</td>
+        <td class="p-2">${row.data.phone||''}</td>
+        <td class="p-2">${row.data.national_id||''}</td>
+        <td class="p-2">${row.data.rx_number||''}</td>
+        <td class="p-2">${row.data.address||''}</td>`;
+      tbody.appendChild(tr);
+    });
+    totalEl.textContent = String(data.length);
+
+    // جرس عند وجود عناصر جديدة
+    const ids = new Set(data.map(x => x.id));
+    const hasNew = [...ids].some(id => !lastIds.has(id));
+    if (lastIds.size && hasNew) { try { ding.currentTime = 0; ding.play(); } catch(e){} }
+    lastIds = ids;
+  } catch (e) {
+    console.error(e);
+  }
+}
+document.getElementById('refreshBtn').addEventListener('click', load);
+setInterval(load, 10000);
+load();
+</script>
+</body>
+</html>
